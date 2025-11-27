@@ -1,1 +1,194 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pemilihan Ketua OSIS SMK Negeri 1 Ampelgading</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #a78bfa, #c4b5fd);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      text-align: center;
+      padding: 2rem;
+      background: rgba(0,0,0,0.2);
+    }
+    header h1 { margin: 0; }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 2rem;
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+    .card {
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+      transition: transform .2s;
+    }
+    .card:hover { transform: translateY(-5px); }
+    .card h2 { margin-top: 0; }
+    .btn {
+      display: inline-block;
+      padding: .6rem 1rem;
+      border-radius: 8px;
+      background: #8b5cf6;
+      color: #fff;
+      font-weight: bold;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      margin-top: .5rem;
+    }
+    .btn:hover { background: #7c3aed; }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: rgba(0,0,0,0.2);
+      margin-top: 2rem;
+    }
+    #hasil {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    .bar-container {
+      background: rgba(255,255,255,0.3);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: .5rem 0;
+    }
+    .bar {
+      height: 28px;
+      line-height: 28px;
+      padding-left: .5rem;
+      color: #fff;
+      font-weight: bold;
+    }
+    .bar.ariny { background: #8b5cf6; }
+    .bar.kaka { background: #a78bfa; }
+    .bar.bagus { background: #c4b5fd; color:#111; }
+    .top-actions {
+      text-align: center;
+      margin: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🗳️ Pemilihan Ketua OSIS</h1>
+    <p>SMK Negeri 1 Ampelgading</p>
+    <p>Countdown ke Hari Pemilos: <span id="countdown">Memuat...</span></p>
+    <div class="top-actions">
+      <button class="btn" onclick="resetVote()">🔄 Reset Suara</button>
+    </div>
+  </header>
 
+  <section class="container">
+    <div class="card">
+      <h2>👑 Ariny</h2>
+      <p>Slogan: "Kreatif, aktif, inspiratif!"</p>
+      <button class="btn" onclick="vote('Ariny')">Vote Ariny</button>
+    </div>
+
+    <div class="card">
+      <h2>👑 Kaka</h2>
+      <p>Slogan: "Disiplin happy, prestasi naik!"</p>
+      <button class="btn" onclick="vote('Kaka')">Vote Kaka</button>
+    </div>
+
+    <div class="card">
+      <h2>👑 Bagus</h2>
+      <p>Slogan: "Ramah lingkungan, ramah teman."</p>
+      <button class="btn" onclick="vote('Bagus')">Vote Bagus</button>
+    </div>
+  </section>
+
+  <div id="hasil">Belum ada suara.</div>
+  <div id="grafik" style="max-width:600px;margin:2rem auto;"></div>
+
+  <footer>
+    Dibuat untuk simulasi e-voting OSIS ✨
+  </footer>
+
+  <script>
+    let tally = JSON.parse(localStorage.getItem('hasilVote')) || {Ariny:0, Kaka:0, Bagus:0};
+
+    function vote(nama) {
+      if(localStorage.getItem('sudahVote')) {
+        alert("Kamu sudah memberikan suara! 😅");
+        return;
+      }
+      tally[nama]++;
+      localStorage.setItem('hasilVote', JSON.stringify(tally));
+      localStorage.setItem('sudahVote', 'true');
+      tampilkanHasil();
+      alert("Terima kasih sudah memilih " + nama + " 🎉💖");
+    }
+
+    function tampilkanHasil() {
+      const total = tally.Ariny + tally.Kaka + tally.Bagus;
+      let pesan = "📊 Hasil sementara:<br>";
+      pesan += `💜 Ariny: ${tally.Ariny} suara<br>`;
+      pesan += `💙 Kaka: ${tally.Kaka} suara<br>`;
+      pesan += `💖 Bagus: ${tally.Bagus} suara<br>`;
+      if(total === 0) {
+        pesan += "<br>Belum ada yang vote... ayo jadi yang pertama! 🚀";
+      } else {
+        pesan += "<br>Total suara: " + total + " 🎉";
+      }
+      document.getElementById('hasil').innerHTML = pesan;
+
+      const grafik = document.getElementById('grafik');
+      grafik.innerHTML = '';
+      ['Ariny','Kaka','Bagus'].forEach(nama=>{
+        const val = tally[nama];
+        const pct = total ? Math.round(val/total*100) : 0;
+        const bar = document.createElement('div');
+        bar.className = 'bar ' + nama.toLowerCase();
+        bar.style.width = pct + '%';
+        bar.textContent = `${nama} ${val} suara (${pct}%) 🎈`;
+        const container = document.createElement('div');
+        container.className = 'bar-container';
+        container.appendChild(bar);
+        grafik.appendChild(container);
+      });
+    }
+
+    function resetVote() {
+      localStorage.removeItem('sudahVote');
+      localStorage.removeItem('hasilVote');
+      tally = {Ariny:0, Kaka:0, Bagus:0};
+      tampilkanHasil();
+      alert("Data suara direset. Yuk coba vote lagi! 🔄😁");
+    }
+
+    const targetDate = new Date('2025-12-11T08:00:00+07:00');
+    function updateCountdown() {
+      const now = new Date();
+      const diff = targetDate - now;
+      const cdEl = document.getElementById('countdown');
+      if(diff <= 0) {
+        cdEl.textContent = 'Hari ini! Ayo vote! 🎉';
+        return;
+      }
+      const d = Math.floor(diff/(1000*60*60*24));
+      const h = Math.floor((diff/(1000*60*60))%24);
+      const m = Math.floor((diff/(1000*60))%60);
+      cdEl.textContent = `${d}h ${h}j ${m}m ⏳`;
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 60000);
+
+    tampilkanHasil();
+  </script>
+</body>
+  </html>
